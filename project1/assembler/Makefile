@@ -11,3 +11,4 @@ $(TARGET): $(OBJS)
  
 clean :
 	rm -f $(OBJS) $(TARGET)
+	rm -f spec.mc
