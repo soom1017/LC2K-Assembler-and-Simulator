@@ -16,6 +16,8 @@ typedef struct stateStruct {
 
 void printState(stateType *);
 int convertNum(int num);
+int readAndParse(int, int *, int *, int *, int *);
+void execInstruction(stateType *, int, int, int, int);
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +48,23 @@ int main(int argc, char *argv[])
         printf("memory[%d]=%d\n", state.numMemory, state.mem[state.numMemory]);
     }
 
-		/* TODO: */
+    int opcode, arg0, arg1, arg2;
+
+    int i;
+    for(i=0;;i++) {
+        printState(&state);
+        
+        if (!readAndParse(state.mem[state.pc], &opcode, &arg0, &arg1, &arg2)) {
+			/* machine halted */
+            state.pc++;
+			break;
+		}
+        // state.pc++;
+        /* TODO: */
+        execInstruction(&state, opcode, arg0, arg1, arg2);
+    }
+    printf("machine halted\ntotal of %d instructions executed\nfinal state of machine:\n", i+1);
+    printState(&state);
     return(0);
 }
 
@@ -73,4 +91,82 @@ int convertNum(int num)
 		num -= (1 << 16);
 	}
 	return (num);
+}
+
+int readAndParse(int mem, int *opcode, int *arg0, int *arg1, int *arg2)
+{
+    /* delete prior values */
+	*opcode = *arg0 = *arg1 = *arg2 = 0;
+    
+    /* read and parse a machine-code file */
+    *opcode = mem >> 22;
+    mem -= *opcode << 22;
+
+    *arg0 = mem >> 19;
+    mem -= *arg0 << 19;
+    *arg1 = mem >> 16;
+    mem -= *arg1 << 16;
+    *arg2 = mem;
+
+    if(*opcode == 6) {
+        /* execute halt instruction */
+        return(0);
+    }
+
+    return(1);
+}
+
+void execInstruction(stateType *statePtr, int opcode, int arg0, int arg1, int arg2)
+{
+    switch(opcode) {
+        case 0:
+            /* add: */
+            statePtr->reg[arg2] = statePtr->reg[arg0] + statePtr->reg[arg1];
+            statePtr->pc += 1;
+            break;
+
+        case 1:
+            /* nor: */
+            statePtr->reg[arg2] = ~ (statePtr->reg[arg0] | statePtr->reg[arg1]);
+            statePtr->pc += 1;
+            break;
+
+        case 2:
+            /* lw: */
+            arg2 = convertNum(arg2);
+            statePtr->reg[arg1] = statePtr->mem[statePtr->reg[arg0] + arg2]; 
+            statePtr->pc += 1;
+            break;
+
+        case 3:
+            /* sw: */
+            arg2 = convertNum(arg2);
+            statePtr->mem[statePtr->reg[arg0] + arg2] = statePtr->reg[arg1];
+            statePtr->pc += 1;
+            break;
+
+        case 4:
+            /* beq: */
+            arg2 = convertNum(arg2);
+            if(statePtr->reg[arg0] == statePtr->reg[arg1])
+                statePtr->pc += arg2;
+            statePtr->pc += 1;
+            break;
+
+
+        case 5:
+            /* jalr: */
+            statePtr->reg[arg1] = statePtr->pc + 1;
+            statePtr->pc = statePtr->reg[arg0];
+            break;
+
+        case 7:
+            /* noop: Do nothing */
+            statePtr->pc += 1;
+            break;
+
+        default:
+            break;
+    }
+    
 }
