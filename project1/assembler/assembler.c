@@ -7,7 +7,6 @@
 #define MAXLINELENGTH 1000
 #define MAX_LABEL_COUNT 1000
 #define LABEL_KEY_LENGTH 6
-#define INSTR_LENGTH 32
 
 #define MAX_16BIT 32767
 #define MIN_16BIT -32768
@@ -181,7 +180,7 @@ int toNumReg(char* arg)
 uint16_t toOffsetField(struct label *labels, int lineAddr, char *arg, int isBranch)
 {
 	int value;
-	
+
 	if(isNumber(arg)) {
 		value = toInt(arg);
 	}

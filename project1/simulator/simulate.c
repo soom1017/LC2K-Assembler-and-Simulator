@@ -59,8 +59,6 @@ int main(int argc, char *argv[])
             state.pc++;
 			break;
 		}
-        // state.pc++;
-        /* TODO: */
         execInstruction(&state, opcode, arg0, arg1, arg2);
     }
     printf("machine halted\ntotal of %d instructions executed\nfinal state of machine:\n", i+1);
