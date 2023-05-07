@@ -1,7 +1,7 @@
 CC = gcc
 OBJS = simulate.o
 TARGET = simulate
-RESULTS = spec.out test1.out test2.out test3.out test4.out test5.out
+RESULTS = spec.out mult.out test1.out test2.out test3.out test4.out test5.out
  
 .SUFFIXES : .c .o
  
